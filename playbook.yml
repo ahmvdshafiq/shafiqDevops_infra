@@ -1,0 +1,62 @@
+---
+- name: Configure Web and Database Server
+  hosts: web
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Install MySQL Server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Ensure MySQL is running
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Secure MySQL Installation
+      mysql_user:
+        name: root
+        password: "your_root_password"
+        host: "{{ ansible_hostname }}"
+        state: present
+        login_password: ""
+        login_user: root
+        login_host: localhost
+      become: true
+
+    - name: Create a new MySQL database
+      community.mysql.mysql_db:
+        name: my_database
+        state: present
+        login_user: root
+        login_password: "your_root_password"
+
+    - name: Create a new MySQL user
+      community.mysql.mysql_user:
+        name: my_user
+        password: my_password
+        priv: "my_database.*:ALL"
+        state: present
+        login_user: root
+        login_password: "your_root_password"
