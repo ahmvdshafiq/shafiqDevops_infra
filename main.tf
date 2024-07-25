@@ -1,28 +1,28 @@
-terraform {
-  required_providers {
-    digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "~> 2.0"  # Use the latest version compatible with your setup
-    }
-  }
-}
-
 provider "digitalocean" {
   token = var.digitalocean_token
 }
 
-# Create a single droplet for both web server and database
-resource "digitalocean_droplet" "combined" {
+resource "digitalocean_droplet" "web" {
+  count  = 2
   image  = "ubuntu-20-04-x64"
-  name   = "combined-droplet"
+  name   = "web-${count.index}"
   region = "nyc3"
   size   = "s-1vcpu-1gb"
   ssh_keys = [var.ssh_fingerprint]
 
-  tags = ["web", "db"]
+  tags = ["web"]
 }
 
-# Load Balancer (if needed)
+resource "digitalocean_droplet" "db" {
+  image  = "ubuntu-20-04-x64"
+  name   = "db"
+  region = "nyc3"
+  size   = "s-1vcpu-1gb"
+  ssh_keys = [var.ssh_fingerprint]
+
+  tags = ["db", "monitoring"]
+}
+
 resource "digitalocean_loadbalancer" "lb" {
   name      = "web-lb"
   region    = "nyc3"
