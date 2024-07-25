@@ -17,7 +17,8 @@ resource "digitalocean_droplet" "web" {
   name   = "web-${count.index}"
   region = "nyc3"
   size   = "s-1vcpu-1gb"
-  ssh_keys = [var.ssh_fingerprint]
+  ssh_keys = [var.ssh_key_id]
+  vpc_uuid = var.vpc_id  # Use the VPC ID from terraform.tfvars
 
   tags = ["web"]
 }
@@ -27,9 +28,10 @@ resource "digitalocean_droplet" "db" {
   name   = "db"
   region = "nyc3"
   size   = "s-1vcpu-1gb"
-  ssh_keys = [var.ssh_fingerprint]
+  ssh_keys = [var.ssh_key_id]
+  vpc_uuid = var.vpc_id  # Use the VPC ID from terraform.tfvars
 
-  tags = ["db", "monitoring"]
+  tags = ["db"]
 }
 
 resource "digitalocean_loadbalancer" "lb" {
@@ -53,4 +55,5 @@ resource "digitalocean_loadbalancer" "lb" {
   }
 
   droplet_tag = "web"
+  vpc_uuid    = var.vpc_id  # Use the VPC ID from terraform.tfvars
 }
