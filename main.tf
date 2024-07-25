@@ -17,7 +17,7 @@ resource "digitalocean_droplet" "web" {
   name   = "web-${count.index}"
   region = "nyc3"
   size   = "s-1vcpu-1gb"
-  ssh_keys = [var.ssh_key_id]
+  ssh_keys = [var.ssh_fingerprint]
   vpc_uuid = [var.vpc_id] 
 
   tags = ["web"]
@@ -28,7 +28,7 @@ resource "digitalocean_droplet" "db" {
   name   = "db"
   region = "nyc3"
   size   = "s-1vcpu-1gb"
-  ssh_keys = [var.ssh_key_id]
+  ssh_keys = [var.ssh_fingerprint]
   vpc_uuid = [var.vpc_id] 
 
   tags = ["db"]
