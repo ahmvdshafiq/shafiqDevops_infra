@@ -34,13 +34,14 @@
         state: started
         enabled: yes
 
+    # Secure MySQL Installation (Use MySQL root password or a secure way to set up the root password)
     - name: Secure MySQL Installation
       mysql_user:
         name: root
         password: "your_root_password"
-        host: "{{ ansible_hostname }}"
+        host: "%"
         state: present
-        login_password: ""
+        login_password: "your_existing_root_password"
         login_user: root
         login_host: localhost
       become: true
