@@ -2,6 +2,9 @@
 - name: Configure Web and Database Server
   hosts: web
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    mysql_root_password: "your_secure_root_password"
 
   tasks:
     - name: Update apt cache
@@ -34,16 +37,38 @@
         state: started
         enabled: yes
 
-    # Secure MySQL Installation (Use MySQL root password or a secure way to set up the root password)
-    - name: Secure MySQL Installation
+    - name: Install necessary packages for mysqlclient
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3-pip
+        - libmysqlclient-dev
+        - pkg-config
+
+    - name: Install PyMySQL and mysqlclient for Python 3
+      pip:
+        name: "{{ item }}"
+        state: present
+        executable: pip3
+      loop:
+        - PyMySQL
+        - mysqlclient
+
+    - name: Set MySQL root password and update authentication method
+      shell: >
+        mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+
+    - name: Secure MySQL root user
       mysql_user:
         name: root
-        password: "your_root_password"
+        password: "{{ mysql_root_password }}"
         host: "%"
         state: present
-        login_password: "your_existing_root_password"
         login_user: root
-        login_host: localhost
+        login_password: "{{ mysql_root_password }}"
       become: true
 
     - name: Create a new MySQL database
@@ -51,7 +76,7 @@
         name: my_database
         state: present
         login_user: root
-        login_password: "your_root_password"
+        login_password: "{{ mysql_root_password }}"
 
     - name: Create a new MySQL user
       community.mysql.mysql_user:
@@ -60,4 +85,4 @@
         priv: "my_database.*:ALL"
         state: present
         login_user: root
-        login_password: "your_root_password"
+        login_password: "{{ mysql_root_password }}"
