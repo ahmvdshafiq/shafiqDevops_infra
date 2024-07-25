@@ -55,10 +55,11 @@ resource "digitalocean_firewall" "web_and_db" {
     destination_addresses = ["0.0.0.0/0"]
   }
 
-  droplet_ids = [
-    digitalocean_droplet.web.*.id,
-    digitalocean_droplet.db.id,
-  ]
+  # Flatten the list of droplet IDs
+  droplet_ids = flatten([
+    digitalocean_droplet.web[*].id,
+    [digitalocean_droplet.db.id],
+  ])
 }
 
 resource "digitalocean_loadbalancer" "lb" {
