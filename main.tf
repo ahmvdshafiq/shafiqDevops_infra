@@ -18,7 +18,7 @@ resource "digitalocean_droplet" "web" {
   region = "nyc3"
   size   = "s-1vcpu-1gb"
   ssh_keys = [var.ssh_fingerprint]
-  vpc_uuid = [var.vpc_id] 
+  vpc_uuid = var.vpc_id 
 
   tags = ["web"]
 }
@@ -29,7 +29,7 @@ resource "digitalocean_droplet" "db" {
   region = "nyc3"
   size   = "s-1vcpu-1gb"
   ssh_keys = [var.ssh_fingerprint]
-  vpc_uuid = [var.vpc_id] 
+  vpc_uuid = var.vpc_id 
 
   tags = ["db"]
 }
@@ -55,5 +55,5 @@ resource "digitalocean_loadbalancer" "lb" {
   }
 
   droplet_tag = "web"
-  vpc_uuid    = [var.vpc_id] 
+  vpc_uuid = var.vpc_id 
 }
