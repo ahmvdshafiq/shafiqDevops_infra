@@ -34,6 +34,33 @@ resource "digitalocean_droplet" "db" {
   tags = ["db"]
 }
 
+resource "digitalocean_firewall" "web_and_db" {
+  name = "web-and-db-firewall"
+
+  inbound_rule {
+    protocol       = "tcp"
+    port_range     = "22"
+    source_addresses = ["0.0.0.0/0"]
+  }
+
+  inbound_rule {
+    protocol       = "icmp"
+    port_range     = "0"
+    source_addresses = ["0.0.0.0/0"]
+  }
+
+  outbound_rule {
+    protocol       = "tcp"
+    port_range     = "0"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+
+  droplet_ids = [
+    digitalocean_droplet.web.*.id,
+    digitalocean_droplet.db.id,
+  ]
+}
+
 resource "digitalocean_loadbalancer" "lb" {
   name      = "web-lb"
   region    = "nyc3"
